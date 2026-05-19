@@ -1,7 +1,9 @@
 import axiosInstance from "@/services/axiosInstance"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { error } from "console";
 import { toast } from "sonner";
+
+const getErrorMessage = (error: any, fallback: string) =>
+  error?.response?.data?.message || error?.response?.data?.data || fallback;
 
 const getAllStudent =async () => {
     try {
@@ -9,7 +11,7 @@ const getAllStudent =async () => {
 
         return response.data
     } catch (error: any) {
-        throw new Error(error.response.data.data || "Error while Geting Students")
+        throw new Error(getErrorMessage(error, "Error while getting students"))
     }
 }
 
@@ -26,14 +28,15 @@ const getStudentById = async (id: string) => {
 
         return response.data
     } catch (error: any) {
-        throw new Error(error.response.data.data || "Error while Geting Students")
+        throw new Error(getErrorMessage(error, "Error while getting student"))
     }
 }
 
 export const useGetStudentById = (id: string) => {
     return useQuery({
-      queryKey: ["getStudent"], // Include the ID as part of the key to ensure unique queries per ID
+      queryKey: ["getStudent", id],
       queryFn: () => getStudentById(id), // Pass a function that calls getStudentById when triggered
+      enabled: Boolean(id),
     });
   };
 
@@ -55,7 +58,7 @@ export const useGetStudentById = (id: string) => {
 
         return response.data;
     } catch (error: any) {
-        throw new Error(error.response.data.data || "Error while Creating Students")
+        throw new Error(getErrorMessage(error, "Error while creating student"))
     }
   }
 
@@ -83,7 +86,7 @@ const getMyDetails = async () => {
 
         return response.data.data;
     } catch (error: any) {
-        throw new Error(error.response.data.message || "An error Occured");
+        throw new Error(getErrorMessage(error, "An error occurred"));
     }
 }
 
@@ -101,7 +104,7 @@ export const useGetMyDetails = () => {
   
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response.data.message || "An error Occured");
+      throw new Error(getErrorMessage(error, "An error occurred"));
     }
   };
   
@@ -118,7 +121,7 @@ export const useGetMyDetails = () => {
   
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response.data.message || "An error Occured");
+      throw new Error(getErrorMessage(error, "An error occurred"));
     }
   };
   
@@ -137,7 +140,7 @@ export const useGetMyDetails = () => {
   
       return response.data.task;
     } catch (error: any) {
-      throw new Error(error.response.data.message || "An error Occured");
+      throw new Error(getErrorMessage(error, "An error occurred"));
     }
   };
   

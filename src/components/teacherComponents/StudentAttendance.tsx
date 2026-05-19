@@ -1,125 +1,127 @@
-// "use client";
+"use client";
 
-// import { useState } from "react";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Badge } from "@/components/ui/badge";
-// import { Button } from "@/components/ui/button";
-// import {
-//   Collapsible,
-//   CollapsibleContent,
-//   CollapsibleTrigger,
-// } from "@/components/ui/collapsible";
+import { useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
-// export default function AttendanceHistory({ attendance} : any) {
-//   const [range, setRange] = useState(null);
-//   const [open, setOpen] = useState(false);
+interface AttendanceRecord {
+  _id: string;
+  date: string;
+  status: "Present" | "Absent" | string;
+}
 
-//   const now = new Date();
+interface AttendanceHistoryProps {
+  attendance?: AttendanceRecord[];
+}
 
-//   const filterAttendance = (months: number) => {
-//     const pastDate = new Date();
-//     pastDate.setMonth(now.getMonth() - months);
+type AttendanceRange = 1 | 3 | 12 | null;
 
-//     return attendance
-//       .filter((a: any) => new Date(a.date) >= pastDate)
-//       .sort((a: any, b: any) => new Date(b.date) - new Date(a.date));
-//   };
+const rangeLabels: Record<Exclude<AttendanceRange, null>, string> = {
+  1: "1 Month",
+  3: "3 Months",
+  12: "1 Year",
+};
 
-//   const getFilteredData = () => {
-//     if (range === 1) return filterAttendance(1);
-//     if (range === 3) return filterAttendance(3);
-//     if (range === 12) return filterAttendance(12);
-//     return [];
-//   };
+export default function AttendanceHistory({
+  attendance = [],
+}: AttendanceHistoryProps) {
+  const [range, setRange] = useState<AttendanceRange>(null);
+  const [open, setOpen] = useState(false);
 
-//   const filteredAttendance = getFilteredData();
+  const filteredAttendance = useMemo(() => {
+    if (!range) {
+      return [];
+    }
 
-//   return (
-//     <Card className="w-full">
-//       <CardHeader>
-//         <CardTitle>Attendance History</CardTitle>
-//       </CardHeader>
+    const pastDate = new Date();
+    pastDate.setMonth(pastDate.getMonth() - range);
 
-//       <CardContent className="space-y-4">
-//         {/* Buttons */}
-//         <div className="flex flex-wrap gap-2">
-//           <Button
-//             variant="outline"
-//             onClick={() => {
-//               setRange(1);
-//               setOpen(true);
-//             }}
-//           >
-//             Show 1 Month Attendance
-//           </Button>
+    return attendance
+      .filter((record) => new Date(record.date) >= pastDate)
+      .sort(
+        (firstRecord, secondRecord) =>
+          new Date(secondRecord.date).getTime() -
+          new Date(firstRecord.date).getTime()
+      );
+  }, [attendance, range]);
 
-//           <Button
-//             variant="outline"
-//             onClick={() => {
-//               setRange(3);
-//               setOpen(true);
-//             }}
-//           >
-//             Show 3 Months Attendance
-//           </Button>
+  const handleRangeClick = (nextRange: Exclude<AttendanceRange, null>) => {
+    setRange(nextRange);
+    setOpen(true);
+  };
 
-//           <Button
-//             variant="outline"
-//             onClick={() => {
-//               setRange(12);
-//               setOpen(true);
-//             }}
-//           >
-//             Show 1 Year Attendance
-//           </Button>
-//         </div>
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Attendance History</CardTitle>
+      </CardHeader>
 
-//         {/* Collapsible */}
-//         <Collapsible open={open} onOpenChange={setOpen}>
-//           <CollapsibleTrigger asChild>
-//             {filteredAttendance.length > 0 && (
-//               <Button variant="ghost" className="w-full">
-//                 Hide Attendance
-//               </Button>
-//             )}
-//           </CollapsibleTrigger>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          {([1, 3, 12] as const).map((rangeOption) => (
+            <Button
+              key={rangeOption}
+              type="button"
+              variant={range === rangeOption ? "default" : "outline"}
+              onClick={() => handleRangeClick(rangeOption)}
+            >
+              {rangeLabels[rangeOption]}
+            </Button>
+          ))}
+        </div>
 
-//           <CollapsibleContent className="space-y-3 mt-3">
-//             {filteredAttendance.length === 0 ? (
-//               <p className="text-sm text-muted-foreground">
-//                 No attendance records found for this period.
-//               </p>
-//             ) : (
-//               filteredAttendance.map((record : any) => (
-//                 <Card key={record._id} className="border">
-//                   <CardContent className="flex items-center justify-between p-4">
-//                     <div>
-//                       <p className="font-medium">
-//                         {new Date(record.date).toLocaleDateString()}
-//                       </p>
-//                       <p className="text-sm text-muted-foreground">
-//                         {new Date(record.date).toLocaleDateString("en-US", {
-//                           weekday: "long",
-//                         })}
-//                       </p>
-//                     </div>
+        <Collapsible open={open} onOpenChange={setOpen}>
+          <CollapsibleTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              disabled={!range}
+            >
+              {open ? "Hide Attendance" : "Show Attendance"}
+            </Button>
+          </CollapsibleTrigger>
 
-//                     <Badge
-//                       variant={
-//                         record.status === "Present"
-//                           ? "success"
-//                           : "destructive"
-//                       }
-//                     >
-//                       {record.status}
-//                     </Badge>
-//                   </CardContent>
-//                 </Card>
-//               ))
-//             )}
-//           </CollapsibleContent>
-//         </Collapsible>
-//       </CardContent>
-//     </Card>
-//   );
-// }
+          <CollapsibleContent className="mt-3 space-y-3">
+            {filteredAttendance.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No attendance records found for this period.
+              </p>
+            ) : (
+              filteredAttendance.map((record) => (
+                <Card key={record._id} className="border">
+                  <CardContent className="flex items-center justify-between p-4">
+                    <div>
+                      <p className="font-medium">
+                        {new Date(record.date).toLocaleDateString()}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(record.date).toLocaleDateString("en-US", {
+                          weekday: "long",
+                        })}
+                      </p>
+                    </div>
+
+                    <Badge
+                      variant={
+                        record.status === "Present" ? "success" : "destructive"
+                      }
+                    >
+                      {record.status}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+      </CardContent>
+    </Card>
+  );
+}

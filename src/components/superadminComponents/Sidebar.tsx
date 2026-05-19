@@ -10,6 +10,7 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import {
+  Banknote,
   BookOpen,
   CalendarClock,
   GraduationCap,
@@ -130,6 +131,17 @@ const Sidebar = () => {
 
               <SheetClose asChild>
                 <Link
+                  href="/superadmin/fees"
+                  className={`flex gap-3 items-center ${
+                    isActive("/superadmin/fees") ? "text-blue-500" : ""
+                  }`}
+                >
+                  <Banknote /> Fees
+                </Link>
+              </SheetClose>
+
+              <SheetClose asChild>
+                <Link
                   href="/superadmin/event"
                   className={`flex gap-3 items-center ${
                     isActive("/superadmin/event") ? "text-blue-500" : ""
@@ -223,6 +235,15 @@ const Sidebar = () => {
             }`}
           >
             <GraduationCap /> Courses
+          </Link>
+
+          <Link
+            href="/superadmin/fees"
+            className={`flex gap-3 items-center ${
+              isActive("/superadmin/fees") ? "text-blue-500" : ""
+            }`}
+          >
+            <Banknote /> Fees
           </Link>
 
           <Link

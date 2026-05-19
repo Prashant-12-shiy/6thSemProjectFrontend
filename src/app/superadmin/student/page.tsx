@@ -1,5 +1,4 @@
 "use client";
-import AddTeacherForm from "@/components/superadminComponents/forms/AddTeacherForm";
 import {
   Select,
   SelectContent,
@@ -17,38 +16,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
-import { EllipsisVertical, Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import React, { useState } from "react";
 import { SelectGroup, SelectLabel } from "@radix-ui/react-select";
 import { useGetAllStudents } from "@/services/api/auth/StudentApi";
-import StudentEditForm from "@/components/superadminComponents/forms/StudentEditForm";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { useStudent } from "@/context/StudentContext";
 import AddStudentForm from "@/components/superadminComponents/forms/AddStudentForm";
 import { PageLoader } from "@/components/page-loader";
+import { Button } from "@/components/ui/button";
 
 const page = () => {
-  interface Student {
-    _id: string;
-    name: string;
-  }
-
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("byname");
-  const { data: studentData, isError, isLoading } = useGetAllStudents();
+  const { data: studentData, isLoading } = useGetAllStudents();
 
     if (isLoading) {
       return <PageLoader/>
     } 
-
-  const { setStudentId } = useStudent();
-
 
   const formattedDate = format(new Date(), "dd/MM/yyyy");
   const filterdata = studentData
@@ -58,7 +42,7 @@ const page = () => {
       if (selectedFilter === "byname") {
         return student.name.toLowerCase().includes(search);
       } else if (selectedFilter === "byrollno") {
-        return student?.status.toLowerCase().includes(search);
+        return student?.rollNumber?.toLowerCase().includes(search);
       } else if (selectedFilter === "byclass") {
         return student?.class?.name.toLowerCase().includes(search);
       } else {
@@ -132,7 +116,7 @@ const page = () => {
               <TableHead>Class</TableHead>
               <TableHead>Guardian Name</TableHead>
               <TableHead>Guardian Contact</TableHead>
-              {/* <TableHead className="w-10 "> </TableHead> */}
+              <TableHead className="w-24 text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -146,40 +130,20 @@ const page = () => {
                     <TableCell>{student?.class?.name}</TableCell>
                     <TableCell>{student?.guardianName}</TableCell>
                     <TableCell>{student?.guardianContact}</TableCell>
-
-                    {/* <TableCell className="opacity-80 cursor-pointer"> */}
-                      {/* <StudentEditForm 
-                              teacherId={student?._id}
-                              teacherDetails={student}
-                            /> */}
-                      {/* <Link
-                        href={`/superadmin/student/${student?.name
-                          .replace(/\s+/g, "-")
-                          .toLowerCase()}`}
-                          onClick={() => setStudentId(student?._id)}
-                      >
-                        Show More
-                      </Link> */}
-
-                      {/* <DropdownMenu>
-                        <DropdownMenuTrigger>
-                          <EllipsisVertical className="h-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="cursor-pointer *:cursor-pointer">
-                          <DropdownMenuItem>
-                            
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>Delete</DropdownMenuItem>
-                          <DropdownMenuItem>More</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu> */}
-                    {/* </TableCell> */}
+                    <TableCell className="text-right">
+                      <Button asChild size="sm" variant="outline" className="gap-2">
+                        <Link href={`/superadmin/student/${student?._id}`}>
+                          <Eye className="h-4 w-4" />
+                          View
+                        </Link>
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 );
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={6}>No Student available.</TableCell>
+                <TableCell colSpan={7}>No Student available.</TableCell>
               </TableRow>
             )}
           </TableBody>
