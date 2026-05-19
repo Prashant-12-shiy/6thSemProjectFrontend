@@ -10,11 +10,10 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
-import { Task, useAddTask } from "@/services/api/auth/TeacherApi";
+import { useAddTask, useGetTeacherClasses } from "@/services/api/auth/TeacherApi";
 import {
   Select,
   SelectContent,
@@ -27,10 +26,11 @@ import { SelectTrigger } from "@radix-ui/react-select";
 
 const AddTaskForm = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [assignedTo, setAssigendTo] = useState(0);
+  const [assignedTo, setAssignedTo] = useState("");
   const [taskContent, setTaskContent] = useState("");
   const { mutate: AddTaskMutation } = useAddTask();
-  const { register, handleSubmit } = useForm<Task>();
+  const { data: classes } = useGetTeacherClasses();
+  const { handleSubmit } = useForm();
 
   const handleCreateTask = () => {
     const newData = {
@@ -41,6 +41,8 @@ const AddTaskForm = () => {
     AddTaskMutation(newData, {
       onSuccess: () => {
         setIsOpen(false);
+        setTaskContent("");
+        setAssignedTo("");
       },
     });
   };
@@ -70,21 +72,18 @@ const AddTaskForm = () => {
 
           <div>
             <Label>Assigned To</Label> <br />
-            <Select onValueChange={(value) => setAssigendTo(Number(value))}>
+            <Select onValueChange={(value) => setAssignedTo(value)}>
               <SelectTrigger className="w-[180px] border rounded-sm">
                 <SelectValue placeholder="Select a Class" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Classes</SelectLabel>
-                  <SelectItem value="1">1</SelectItem>
-                  <SelectItem value="2">2</SelectItem>
-                  <SelectItem value="3">3</SelectItem>
-                  <SelectItem value="4">4</SelectItem>
-                  <SelectItem value="5">5</SelectItem>
-                  <SelectItem value="6">6</SelectItem>
-                  <SelectItem value="7">7</SelectItem>
-                  <SelectItem value="8">8</SelectItem>
+                  {classes?.map((cls: { _id: string; name: string }) => (
+                    <SelectItem key={cls._id} value={cls.name}>
+                      {cls.name}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>

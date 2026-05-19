@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -30,11 +29,10 @@ import {
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Search, User, Calendar, BookOpen, Star } from "lucide-react";
+import { Search, Calendar, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import FirstTermReportPDF from "@/components/teacherComponents/GradeReportGenerator";
-// import AttendanceHistory from "@/components/teacherComponents/StudentAttendance";
+import AttendanceHistory from "@/components/teacherComponents/StudentAttendance";
+import TermReportPDF from "@/components/teacherComponents/GradeReportGenerator";
 
 const Page = () => {
   const [attendanceSummary, setAttendanceSummary] = useState({
@@ -44,7 +42,7 @@ const Page = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const params = useParams();
-  const id = params.id.toString();
+  const id = String(params.id || "");
 
   const { data: studentData, isLoading } = useGetStudentById(id);
   const {data: teacherData, isLoading: teacherDataLoading} = useGetMyDetails();
@@ -185,7 +183,9 @@ const Page = () => {
       </Card>
       
 
-        {/* <AttendanceHistory attendance={studentData.attendance}/> */}
+      <div className="mt-8">
+        <AttendanceHistory attendance={studentData?.attendance || []} />
+      </div>
 
 
       {/* Grade Record Section */}
@@ -281,7 +281,7 @@ const Page = () => {
           </Table>
         </CardContent>
       </Card>
-     <FirstTermReportPDF
+     <TermReportPDF
   studentData={studentData}
   filteredGrades={filteredGrades}
   classTeacherName={teachername}

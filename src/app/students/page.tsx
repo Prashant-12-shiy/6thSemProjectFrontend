@@ -18,18 +18,30 @@ import {
 } from "@/components/ui/table";
 import { useGetTask } from "@/services/api/auth/StudentApi";
 import { Search, BookOpen, ClipboardList } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 
 const Page = () => {
   const { data: task, isLoading } = useGetTask();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter tasks based on search query
-  const filteredTasks = task?.filter((task: any) =>
-    task?.teacher?.course?.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-  );
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  // Filter tasks to show only today's homework
+  const todaysHomework = task?.filter((task: any) => {
+    const taskDate = new Date(task.createdAt);
+    taskDate.setHours(0, 0, 0, 0);
+    return taskDate.getTime() === today.getTime();
+  });
+
+  // Further filter by subject search
+  const filteredTasks = todaysHomework?.filter((task: any) => {
+    const subjectName = task?.teacher?.course?.name;
+    return subjectName?.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -64,7 +76,7 @@ const Page = () => {
             <div className="flex items-center gap-2">
               <ClipboardList className="text-purple-500" />
               <CardTitle className="text-xl font-semibold text-gray-900">
-                Today's Homework
+                Today{"'"}s Homework
               </CardTitle>
             </div>
             <CardDescription className="text-gray-500">

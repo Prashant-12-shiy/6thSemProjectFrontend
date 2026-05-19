@@ -38,7 +38,7 @@ export const useCreateTeacher = () => {
     onError: (error) => {
       console.log(error);
 
-      toast.success(error.message);
+      toast.error(error.message);
     },
   });
 
@@ -57,10 +57,6 @@ interface ClassInCharge {
 }
 
 export interface Teacher {
-  map(
-    arg0: (teacher: Teacher, index: number) => import("react").JSX.Element
-  ): import("react").ReactNode;
-  length: number;
   _id: string;
   name: string;
   email: string;
@@ -183,8 +179,9 @@ const getStudentById = async (id: string) => {
 
 export const useGetStudentById = (id: string) => {
   return useQuery({
-    queryKey: ["getStudentById"],
+    queryKey: ["getStudentById", id],
     queryFn: () => getStudentById(id),
+    enabled: Boolean(id),
   });
 };
 
@@ -211,7 +208,7 @@ export const useMarkAttendence = () => {
       
       toast.success(
         data.studentName +
-          "has been marked as a " +
+          " has been marked as " +
           data.attendance.status
       );
     },
@@ -241,7 +238,7 @@ export const useGetAssignedTask = () => {
 };
 
 export interface Task {
-  assignedTo: number;
+  assignedTo: string;
   taskContent: string;
 }
 
@@ -285,8 +282,9 @@ const getStudentGrade = async (id: string) => {
 
 export const useGetStudentGrade = (id: string) => {
   return useQuery({
-    queryKey: ["getStudentGrade"],
+    queryKey: ["getStudentGrade", id],
     queryFn: () => getStudentGrade(id),
+    enabled: Boolean(id),
   });
 };
 
@@ -349,3 +347,19 @@ const updateGrade = async (data: any) => {
       })
       return mutation
   }
+
+const getTeacherClasses = async () => {
+  try {
+    const response = await axiosInstance.get("/api/teacher/classes");
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error fetching classes");
+  }
+};
+
+export const useGetTeacherClasses = () => {
+  return useQuery({
+    queryKey: ["teacherClasses"],
+    queryFn: getTeacherClasses,
+  });
+};

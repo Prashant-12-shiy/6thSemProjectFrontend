@@ -12,41 +12,41 @@ import { Input } from "@/components/ui/input";
 import { useGetAssignedTask } from "@/services/api/auth/TeacherApi";
 import { format } from "date-fns";
 import { Search, Calendar, ClipboardList } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 
 const Page = () => {
   const { data: assignedTaskData, isLoading } = useGetAssignedTask();
   const [searchQuery, setSearchQuery] = useState("");
 
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const yesterday = useMemo(() => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - 1);
+    return d;
+  }, [today]);
+
   // Filter tasks based on search query
   const filteredTasks = assignedTaskData?.filter((task: any) =>
-    task?.assignedTo?.name.toLowerCase().includes(searchQuery.toLowerCase())
+    task?.assignedTo?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Filter past tasks
-  const pastTask = filteredTasks?.filter((task: any) => {
+  // Filter yesterday's tasks
+  const yesterdayTask = filteredTasks?.filter((task: any) => {
     const taskDate = new Date(task.createdAt);
-    const today = new Date();
-
-    return (
-      taskDate.getFullYear() < today.getFullYear() ||
-      (taskDate.getFullYear() === today.getFullYear() &&
-        (taskDate.getMonth() < today.getMonth() ||
-          (taskDate.getMonth() === today.getMonth() &&
-            taskDate.getDate() < today.getDate())))
-    );
+    taskDate.setHours(0, 0, 0, 0);
+    return taskDate.getTime() === yesterday.getTime();
   });
 
   // Filter today's tasks
   const todayTask = filteredTasks?.filter((task: any) => {
     const taskDate = new Date(task.createdAt);
-    const today = new Date();
-
-    return (
-      taskDate.getFullYear() === today.getFullYear() &&
-      taskDate.getMonth() === today.getMonth() &&
-      taskDate.getDate() === today.getDate()
-    );
+    taskDate.setHours(0, 0, 0, 0);
+    return taskDate.getTime() === today.getTime();
   });
 
   if (isLoading) {
@@ -83,7 +83,7 @@ const Page = () => {
             <div className="flex items-center gap-2">
               <Calendar className="text-purple-500" />
               <CardTitle className="text-xl font-semibold text-gray-900">
-                Yesterday's Tasks
+                Yesterday{"'"}s Tasks
               </CardTitle>
             </div>
             <CardDescription className="text-gray-500">
@@ -91,8 +91,8 @@ const Page = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {pastTask?.length > 0 ? (
-              pastTask.map((task: any, index: number) => (
+            {yesterdayTask?.length > 0 ? (
+              yesterdayTask.map((task: any, index: number) => (
                 <div
                   key={index}
                   className="p-4 mb-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
@@ -121,7 +121,7 @@ const Page = () => {
             <div className="flex items-center gap-2">
               <Calendar className="text-purple-500" />
               <CardTitle className="text-xl font-semibold text-gray-900">
-                Today's Tasks
+                Today{"'"}s Tasks
               </CardTitle>
             </div>
             <CardDescription className="text-gray-500">

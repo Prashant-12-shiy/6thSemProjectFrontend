@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Home,
   TableOfContents,
+  WalletCards,
 } from "lucide-react";
 import Image from "next/image";
 import cookies from "js-cookie";
@@ -61,9 +62,9 @@ const Sidebar = () => {
             <div className="mt-10 *:mb-3 *:text-xl font-semibold *:flex *:gap-3 cursor-pointer">
               <SheetClose asChild>
                 <Link
-                  href="/teacher"
+                  href="/students"
                   className={`flex gap-3 items-center ${
-                    isActive("/teachers") ? "text-blue-500" : ""
+                    isActive("/students") ? "text-blue-500" : ""
                   }`}
                 >
                   <Home /> DashBoard
@@ -78,6 +79,17 @@ const Sidebar = () => {
                   }`}
                 >
                   <BookOpen /> Grade
+                </Link>
+              </SheetClose>
+
+              <SheetClose asChild>
+                <Link
+                  href="/students/fees"
+                  className={`flex gap-3 items-center ${
+                    isActive("/students/fees") ? "text-blue-500" : ""
+                  }`}
+                >
+                  <WalletCards /> Fees
                 </Link>
               </SheetClose>
 
@@ -117,9 +129,9 @@ const Sidebar = () => {
         </div>
         <div className="mt-10 *:mb-3 *:text-xl font-semibold *:flex *:gap-3 cursor-pointer">
           <Link
-            href="/teacher"
+            href="/students"
             className={`flex gap-3 items-center ${
-              isActive("/teacher") ? "text-blue-500" : ""
+              isActive("/students") ? "text-blue-500" : ""
             }`}
           >
             <Home /> DashBoard
@@ -132,6 +144,15 @@ const Sidebar = () => {
             }`}
           >
             <BookOpen /> Grade
+          </Link>
+
+          <Link
+            href="/students/fees"
+            className={`flex gap-3 items-center ${
+              isActive("/students/fees") ? "text-blue-500" : ""
+            }`}
+          >
+            <WalletCards /> Fees
           </Link>
 
           <Link

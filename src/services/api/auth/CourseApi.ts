@@ -71,7 +71,13 @@ export const useCreateCourse = () => {
 
 
 interface UpdateCourseInput {
-  updatedData: CoursesResponse;
+  updatedData: {
+    name?: string;
+    code?: string;
+    description?: string;
+    credits?: number;
+    className?: string;
+  };
   id: string;
 }
 

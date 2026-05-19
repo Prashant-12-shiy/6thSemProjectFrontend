@@ -1,12 +1,11 @@
 import axiosInstance from "@/services/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { toast } from "sonner";
 import cookies from "js-cookie";
 
 interface loginData {
-  email: String;
-  password: String;
+  email: string;
+  password: string;
 }
 
 const userLogin = async (data: loginData) => {
